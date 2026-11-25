@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+settings.json
+settings.bad.json
+
+# duplicate of assets/icon128.png
+/icon128.png
+
+# local build notes for Claude Code
+CLAUDE.md
