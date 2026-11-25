@@ -92,6 +92,7 @@ def _snapshot(owner_hwnd):
 
 # ---------------------------------------------------------------- keyboard
 _MODIFIERS = (win32.VK_CONTROL, win32.VK_SHIFT, win32.VK_MENU, win32.VK_LWIN, win32.VK_RWIN)
+ENTER_RELEASE_TIMEOUT = 5.0  # how long to wait for Shift etc. to be let go before Enter
 
 
 def _wait_modifiers_released(timeout=1.0):
@@ -161,7 +162,13 @@ def _insert(text, target, press_enter, owner_hwnd):
               " (target may be running as administrator)")
     if press_enter and sent == 4:
         time.sleep(0.06)
-        win32.send_keys([(win32.VK_RETURN, False), (win32.VK_RETURN, True)])
+        # Enter must go out with no modifier held: Shift+Enter is "new line" in Slack,
+        # Discord, Teams..., and Shift is often still down after a Shift+click / Shift+number.
+        if _wait_modifiers_released(ENTER_RELEASE_TIMEOUT):
+            win32.send_keys([(win32.VK_RETURN, False), (win32.VK_RETURN, True)])
+        else:
+            debug(f"modifiers still held after {ENTER_RELEASE_TIMEOUT:.0f}s; "
+                  "not pressing Enter (it would add a new line instead of sending)")
 
     time.sleep(0.25)
     if win32.GetClipboardSequenceNumber() == our_seq:

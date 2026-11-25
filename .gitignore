@@ -12,3 +12,7 @@ settings.bad.json
 
 # local build notes for Claude Code
 CLAUDE.md
+
+# walkthrough video: generated files and narration audio
+video/build/
+video/audio/

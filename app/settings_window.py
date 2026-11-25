@@ -5,7 +5,7 @@ Every change is saved immediately; the bar picks it up the next time it opens.
 import tkinter as tk
 import tkinter.font as tkfont
 
-from app import win32
+from app import startup, win32
 from app.config import asset_path
 from app.hotkey import format_hotkey, vk_name
 from app.popup import (CARD, CYAN, DIM, ENTRY_BG, FG, FG_SOFT, MUTED, SEL, VIOLET,
@@ -165,11 +165,22 @@ class SettingsWindow:
                        activeforeground=FG, selectcolor=ENTRY_BG, highlightthickness=0,
                        bd=0, cursor="hand2").pack(anchor="w", pady=(self.px(4), 0))
         self.startup_var = tk.BooleanVar(value=self.app.cfg["start_with_windows"])
-        tk.Checkbutton(body, text="  Start with Windows", variable=self.startup_var,
-                       command=lambda: self.app.set_start_with_windows(self.startup_var.get()),
-                       font=self.f_text, bg=CARD, fg=FG, activebackground=CARD,
-                       activeforeground=FG, selectcolor=ENTRY_BG, highlightthickness=0,
-                       bd=0, cursor="hand2").pack(anchor="w", pady=(p(4), 0))
+        if startup.packaged:
+            # Store build: Windows owns this switch (Settings > Apps > Startup).
+            row = tk.Frame(body, bg=CARD)
+            row.pack(fill="x", pady=(p(8), 0))
+            tk.Label(row, text="Start with Windows", font=self.f_text, bg=CARD,
+                     fg=FG).pack(side="left")
+            self._button(row, "Open Windows startup settings",
+                         startup.open_startup_settings, small=True).pack(side="left",
+                                                                           padx=(p(10), 0))
+        else:
+            tk.Checkbutton(body, text="  Start with Windows", variable=self.startup_var,
+                           command=lambda: self.app.set_start_with_windows(
+                               self.startup_var.get()),
+                           font=self.f_text, bg=CARD, fg=FG, activebackground=CARD,
+                           activeforeground=FG, selectcolor=ENTRY_BG, highlightthickness=0,
+                           bd=0, cursor="hand2").pack(anchor="w", pady=(p(4), 0))
 
         # Footer
         foot = tk.Frame(body, bg=CARD)

@@ -62,7 +62,7 @@ To quit: right-click the tray icon → **Quit**.
 
 ## Privacy
 
-The app makes **no network connections**. It doesn't log your replies, clipboard or window
+See the full [privacy policy](PRIVACY.md). The app makes **no network connections**. It doesn't log your replies, clipboard or window
 titles. (The `--debug` mode prints window titles to the console only, for development.)
 It only ever simulates **Ctrl+V** and, if you ask it to, **Enter**.
 
@@ -76,6 +76,16 @@ cd quick-replies
 .\run.ps1 --debug        # creates .venv, installs requirements, runs with console logs
 .\build.ps1              # runs the unit tests, then builds dist\QuickReplies.exe
 ```
+
+Microsoft Store package (needs the Windows SDK):
+
+```powershell
+.\build-msix.ps1 -Version 1.0.0.0 -Register   # builds dist\QuickReplies.msix and installs it locally to test
+.\build-msix.ps1 -Unregister                  # removes the local test install
+```
+
+The `.msix` is unsigned on purpose; the Store signs it. Bump `-Version` for every Store
+update (the last number must stay 0).
 
 Run the tests on their own with
 `.\.venv\Scripts\python.exe -m unittest discover -s tests`.
@@ -99,7 +109,9 @@ app/
   names.py              window title -> {name}
   startup.py            Start with Windows (HKCU Run key)
 tests/                  unittest suites
+packaging/              MSIX manifest + Store logo generator
 build.ps1 / run.ps1     build and run helpers
+build-msix.ps1          Microsoft Store package
 ```
 
 ## License

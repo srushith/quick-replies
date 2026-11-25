@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MSIX manifest for the Microsoft Store build. build-msix.ps1 fills in {VERSION}.
+     Identity values come from Partner Center > Product identity; don't change them. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop rescap">
+
+  <Identity
+    Name="SrushithKumar.QuickRepliesforWindows"
+    Publisher="CN=E8626EB8-8E93-4AC9-829E-9E4E3C843B2C"
+    Version="{VERSION}"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Quick Replies for Windows</DisplayName>
+    <PublisherDisplayName>Srushith Kumar</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="QuickReplies"
+                 Executable="QuickReplies\QuickReplies.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Quick Replies"
+        Description="Press a shortcut in any app, pick a reply, and it's typed where your cursor is."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Start with Windows: off by default; the user turns it on in
+             Settings > Apps > Startup. TaskId must match app/startup.py. -->
+        <desktop:Extension Category="windows.startupTask"
+                           Executable="QuickReplies\QuickReplies.exe"
+                           EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="QuickRepliesStartup" Enabled="false" DisplayName="Quick Replies" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Required for every packaged desktop (Win32) app. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

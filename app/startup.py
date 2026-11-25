@@ -1,16 +1,33 @@
-"""Start with Windows: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run, value QuickReplies."""
+"""Start with Windows.
+
+Unpackaged (plain exe / source): HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run,
+value QuickReplies.
+
+Packaged (Microsoft Store MSIX): the Run key doesn't work for packaged apps. The
+manifest declares a startup task (TaskId below, disabled by default) and the user
+switches it on in Settings > Apps > Startup. We open that page and read the task's
+state for the checkmark.
+"""
 import os
 import sys
 import winreg
 
+from app import win32
 from app.log import debug
 
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 VALUE = "QuickReplies"
+TASK_ID = "QuickRepliesStartup"  # must match AppxManifest.xml
+_TASK_STATE_KEY = (r"Software\Classes\Local Settings\Software\Microsoft\Windows"
+                   r"\CurrentVersion\AppModel\SystemAppData\{pfn}\{task}")
+_ENABLED_STATES = {2, 4}  # Enabled, EnabledByPolicy
+
+_pfn = win32.package_family_name()
+packaged = _pfn is not None
 
 
 def command():
-    """What Windows should run at sign-in."""
+    """What Windows should run at sign-in (unpackaged only)."""
     if getattr(sys, "frozen", False):  # PyInstaller exe
         return f'"{sys.executable}"'
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,7 +39,7 @@ def command():
 
 
 def current():
-    """The registered command, or None."""
+    """The registered Run command, or None."""
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY) as k:
             value, _ = winreg.QueryValueEx(k, VALUE)
@@ -31,12 +48,36 @@ def current():
         return None
 
 
+def _task_enabled():
+    try:
+        key = _TASK_STATE_KEY.format(pfn=_pfn, task=TASK_ID)
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key) as k:
+            state, _ = winreg.QueryValueEx(k, "State")
+            return state in _ENABLED_STATES
+    except OSError:
+        return False  # never toggled yet = disabled (manifest default)
+
+
 def is_enabled():
-    return current() is not None
+    return _task_enabled() if packaged else current() is not None
+
+
+def open_startup_settings():
+    try:
+        os.startfile("ms-settings:startupapps")
+        return True
+    except OSError as e:
+        debug(f"could not open startup settings: {e}")
+        return False
 
 
 def set_enabled(on):
-    """Add or remove the Run value. Returns True on success; never raises."""
+    """Add or remove the Run value. Returns True on success; never raises.
+
+    Packaged: we can't change it ourselves; open Windows' Startup apps page instead.
+    """
+    if packaged:
+        return open_startup_settings()
     try:
         if on:
             with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, RUN_KEY, 0,
@@ -57,7 +98,9 @@ def set_enabled(on):
 
 def sync(want):
     """At startup: make the registry match the setting, and fix a stale path
-    (e.g. the exe was moved). Returns the effective state."""
+    (e.g. the exe was moved). Returns the effective state. Packaged: Windows owns it."""
+    if packaged:
+        return _task_enabled()
     cur = current()
     if want and cur != command():
         set_enabled(True)

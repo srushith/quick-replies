@@ -58,7 +58,8 @@ class App:
                             on_settings=self.open_settings, on_pin=self.toggle_pin)
         self.bar.set_pinned(self.cfg["keep_open"])
         self.settings = SettingsWindow(root, self)
-        self.tray = Tray(self.events, lambda: self.cfg["start_with_windows"])
+        self.tray = Tray(self.events, lambda: startup.is_enabled() if startup.packaged
+                         else self.cfg["start_with_windows"])
         self.cfg["start_with_windows"] = startup.sync(self.cfg["start_with_windows"])
         self.owner_hwnd = win32.root_hwnd(root.winfo_id())
 
@@ -224,6 +225,9 @@ class App:
         self.settings.refresh()
 
     def set_start_with_windows(self, value):
+        if startup.packaged:  # Store build: Windows owns the switch
+            startup.open_startup_settings()
+            return
         if not startup.set_enabled(bool(value)):
             self.tray.notify("Couldn't change the Start with Windows setting.")
         self.cfg["start_with_windows"] = startup.is_enabled()

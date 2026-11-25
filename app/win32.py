@@ -125,6 +125,11 @@ OpenProcess = _fn(kernel32, "OpenProcess", wintypes.HANDLE,
 QueryFullProcessImageNameW = _fn(kernel32, "QueryFullProcessImageNameW", wintypes.BOOL,
                                  wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR,
                                  ctypes.POINTER(wintypes.DWORD))
+try:  # Windows 8+; tells us whether we run inside an MSIX package (Store build)
+    GetCurrentPackageFamilyName = _fn(kernel32, "GetCurrentPackageFamilyName", ctypes.c_long,
+                                      ctypes.POINTER(ctypes.c_uint32), wintypes.LPWSTR)
+except AttributeError:
+    GetCurrentPackageFamilyName = None
 GlobalAlloc = _fn(kernel32, "GlobalAlloc", wintypes.HGLOBAL, wintypes.UINT, ctypes.c_size_t)
 GlobalLock = _fn(kernel32, "GlobalLock", wintypes.LPVOID, wintypes.HGLOBAL)
 GlobalUnlock = _fn(kernel32, "GlobalUnlock", wintypes.BOOL, wintypes.HGLOBAL)
@@ -210,6 +215,20 @@ def window_title(hwnd):
         return ""
     buf = ctypes.create_unicode_buffer(n + 1)
     GetWindowTextW(hwnd, buf, n + 1)
+    return buf.value
+
+
+def package_family_name():
+    """MSIX package family name if running packaged (Store build), else None."""
+    if not GetCurrentPackageFamilyName:
+        return None
+    n = ctypes.c_uint32(0)
+    GetCurrentPackageFamilyName(ctypes.byref(n), None)  # 15700 = not packaged
+    if n.value == 0:
+        return None
+    buf = ctypes.create_unicode_buffer(n.value)
+    if GetCurrentPackageFamilyName(ctypes.byref(n), buf) != 0:
+        return None
     return buf.value
 
 
