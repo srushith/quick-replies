@@ -4,6 +4,8 @@ Press a shortcut in any app, pick a reply, and it's typed where your cursor is:
 Slack, Discord, Teams, Outlook, Notepad, anything. The desktop companion to the
 **Quick Replies for Slack & Discord** Chrome extension.
 
+<a href="https://apps.microsoft.com/detail/9N7CNHRGXWM6"><img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get it from Microsoft" width="200"></a>
+
 - **Ctrl+Shift+Space** opens a small reply bar next to your mouse
 - `Hi {name}` becomes **Hi Priya** in Slack and Discord DMs
 - Works with the Slack and Discord **desktop** apps: the text is pasted, so Backspace and Enter keep working
@@ -11,15 +13,28 @@ Slack, Discord, Teams, Outlook, Notepad, anything. The desktop companion to the
 
 ## Install
 
-1. Get `QuickReplies.exe` (or [build it yourself](#build-from-source)) and put it anywhere,
+**Recommended: [Microsoft Store](https://apps.microsoft.com/detail/9N7CNHRGXWM6)**. Click **Get** (or **Install**), then open
+**Quick Replies** from the Start menu. Updates come through the Store automatically, and
+there's no "Windows protected your PC" warning.
+
+A violet speech-bubble icon appears in the system tray (bottom-right, next to the clock;
+it may be hidden under the **^** arrow).
+
+To start it automatically: right-click the tray icon → **Start with Windows**. In the Store
+version this opens Windows' **Settings → Apps → Startup** page; turn **Quick Replies** on there.
+
+<details>
+<summary>Without the Store (standalone exe)</summary>
+
+1. Get `QuickReplies.exe` ([build it yourself](#build-from-source)) and put it anywhere,
    e.g. `Documents\QuickReplies`.
 2. Double-click it. The first time, Windows may say **"Windows protected your PC"**:
-   click **More info → Run anyway** (the app isn't code-signed yet). Some antivirus
+   click **More info → Run anyway** (the exe isn't code-signed). Some antivirus
    tools also flag apps built with PyInstaller; that's a false alarm.
-3. A violet speech-bubble icon appears in the system tray (bottom-right, next to the
-   clock; it may be hidden under the **^** arrow).
+3. Right-click the tray icon → **Start with Windows** to start it at sign-in.
 
-To start it automatically: right-click the tray icon → **Start with Windows**.
+Don't run the Store version and the exe at the same time; uninstall one first.
+</details>
 
 ## Use it
 
@@ -58,7 +73,8 @@ Settings live in `%APPDATA%\QuickRepliesDesktop\settings.json`, on this PC only.
 - If the shortcut is already used by another app, you'll get a message and Settings opens
   so you can choose another.
 
-To quit: right-click the tray icon → **Quit**.
+To quit: right-click the tray icon → **Quit**. To uninstall the Store version: Start menu →
+right-click **Quick Replies** → **Uninstall**.
 
 ## Privacy
 
